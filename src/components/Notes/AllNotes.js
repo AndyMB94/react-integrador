@@ -14,7 +14,7 @@ const AllNotes = () => {
   const fetchNotes = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/notes");
+      const response = await api.get("/api/notes");
 
       const parsedNotes = response.data.map((note) => ({
         ...note,

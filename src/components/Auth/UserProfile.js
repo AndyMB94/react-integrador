@@ -83,7 +83,7 @@ const UserProfile = () => {
     setDisbledLoader(true);
     try {
       const response = await api.post(`/auth/enable-2fa`);
-      setQrCodeUrl(response.data);
+      setQrCodeUrl(response.data); // Asegúrate de que `response.data` sea el QR Code URL
       setStep(2);
     } catch (error) {
       toast.error("Error enabling 2FA");

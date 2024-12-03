@@ -1,61 +1,92 @@
-import React, { createContext, useContext, useState } from "react";
-import { useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import api from "../services/api";
 import toast from "react-hot-toast";
 
 const ContextApi = createContext();
 
 export const ContextProvider = ({ children }) => {
-  //find the token in the localstorage
-  const getToken = localStorage.getItem("JWT_TOKEN")
-    ? JSON.stringify(localStorage.getItem("JWT_TOKEN"))
-    : null;
-  //find is the user status from the localstorage
-  const isADmin = localStorage.getItem("IS_ADMIN")
-    ? JSON.stringify(localStorage.getItem("IS_ADMIN"))
-    : false;
+  const getToken = localStorage.getItem("JWT_TOKEN") || null;
+  const isAdminStored = localStorage.getItem("IS_ADMIN") ? JSON.parse(localStorage.getItem("IS_ADMIN")) : false;
 
-  //store the token
   const [token, setToken] = useState(getToken);
-
-  //store the current loggedin user
   const [currentUser, setCurrentUser] = useState(null);
-  //handle sidebar opening and closing in the admin panel
   const [openSidebar, setOpenSidebar] = useState(true);
-  //check the loggedin user is admin or not
-  const [isAdmin, setIsAdmin] = useState(isADmin);
+  const [isAdmin, setIsAdmin] = useState(isAdminStored);
+  const [hasRole, setHasRole] = useState(false);
+  const [role, setRole] = useState(null);
 
-  const fetchUser = async () => {
-    const user = JSON.parse(localStorage.getItem("USER"));
+  const clearSession = () => {
+    localStorage.removeItem("JWT_TOKEN");
+    localStorage.removeItem("USER");
+    localStorage.removeItem("IS_ADMIN");
+    localStorage.removeItem("CSRF_TOKEN");
+    setToken(null);
+    setCurrentUser(null);
+    setRole(null);
+    setHasRole(false);
+    setIsAdmin(false);
+  };
 
-    if (user?.username) {
-      try {
-        const { data } = await api.get(`/auth/user`);
-        const roles = data.roles;
+  // Función para obtener el token CSRF
+  const fetchCsrfToken = useCallback(async () => {
+    try {
+      const response = await api.get("/api/csrf-token", { withCredentials: true });
+      const csrfToken = response.data.token;
+      localStorage.setItem("CSRF_TOKEN", csrfToken);
+    } catch (error) {
+      console.error("Failed to fetch CSRF token", error);
+      toast.error("Error fetching CSRF token");
+    }
+  }, []);
 
-        if (roles.includes("ROLE_ADMIN")) {
-          localStorage.setItem("IS_ADMIN", JSON.stringify(true));
-          setIsAdmin(true);
-        } else {
-          localStorage.removeItem("IS_ADMIN");
-          setIsAdmin(false);
-        }
+  // Función para obtener los datos del usuario
+  const fetchUser = useCallback(async () => {
+    try {
+      await fetchCsrfToken(); // Aseguramos el token CSRF antes de obtener el usuario
+      const { data } = await api.get(`/api/auth/user`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const roles = data.roles;
+
+      if (roles.includes("ROLE_CLIENTE")) {
         setCurrentUser(data);
-      } catch (error) {
-        console.error("Error fetching current user", error);
+        setRole("Comprador");
+        setHasRole(true);
+      } else if (roles.includes("ROLE_PRODUCTOR")) {
+        setCurrentUser(data);
+        setRole("Proveedor");
+        setHasRole(true);
+      } else {
+        setHasRole(false);
+      }
+
+      if (roles.includes("ROLE_ADMIN")) {
+        localStorage.setItem("IS_ADMIN", JSON.stringify(true));
+        setIsAdmin(true);
+      } else {
+        localStorage.removeItem("IS_ADMIN");
+        setIsAdmin(false);
+      }
+    } catch (error) {
+      console.error("Error fetching current user", error);
+
+      // Si obtenemos un error 401 o un error de red, limpiamos la sesión
+      if (error.response?.status === 401 || error.code === "ERR_NETWORK") {
+        clearSession();
+        toast.error("Session expired, please log in again.");
+      } else {
         toast.error("Error fetching current user");
       }
     }
-  };
+  }, [token, fetchCsrfToken]);
 
-  //if  token exist fetch the current user
+  // Ejecutamos fetchUser solo cuando hay un token
   useEffect(() => {
     if (token) {
       fetchUser();
     }
-  }, [token]);
+  }, [token, fetchUser]);
 
-  //through context provider you are sending all the datas so that we access at anywhere in your application
   return (
     <ContextApi.Provider
       value={{
@@ -67,6 +98,9 @@ export const ContextProvider = ({ children }) => {
         setOpenSidebar,
         isAdmin,
         setIsAdmin,
+        hasRole,
+        role,
+        setRole,
       }}
     >
       {children}
@@ -74,9 +108,7 @@ export const ContextProvider = ({ children }) => {
   );
 };
 
-//by using this (useMyContext) custom hook we can reach our context provier and access the datas across our components
 export const useMyContext = () => {
   const context = useContext(ContextApi);
-
   return context;
 };
