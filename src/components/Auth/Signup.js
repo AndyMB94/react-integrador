@@ -1,25 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../../services/api";
 import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
 import Divider from "@mui/material/Divider";
-import Buttons from "../../utils/Buttons";
 import InputField from "../InputField/InputField";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useMyContext } from "../../store/ContextApi";
-import { useEffect } from "react";
 
 const Signup = () => {
-  const apiUrl = process.env.REACT_APP_API_URL;
-  const [role, setRole] = useState();
-  const [loading, setLoading] = useState(false);
-  // Access the token and setToken function using the useMyContext hook from the ContextProvider
-  const { token } = useMyContext();
+  const apiUrl = process.env.REACT_APP_API_URL; // URL base para la API
+  const [loading, setLoading] = useState(false); // Estado para manejar la carga
+  const { token } = useMyContext(); // Obtener token del contexto
   const navigate = useNavigate();
 
-  //react hook form initialization
+  // Inicialización de React Hook Form
   const {
     register,
     handleSubmit,
@@ -35,140 +30,121 @@ const Signup = () => {
     mode: "onTouched",
   });
 
-  useEffect(() => {
-    setRole("ROLE_USER");
-  }, []);
-
+  // Manejo del envío del formulario
   const onSubmitHandler = async (data) => {
     const { username, email, password } = data;
     const sendData = {
       username,
       email,
       password,
-      role: [role],
+      role: ["ROLE_USER"], // Asignamos el rol directamente
     };
 
     try {
-      setLoading(true);
-      const response = await api.post("/auth/public/signup", sendData);
-      toast.success("Reagister Successful");
-      reset();
+      setLoading(true); // Activar estado de carga
+      const response = await api.post("/api/auth/public/signup", sendData); // Asegúrate de usar el prefijo correcto de tu API
+      toast.success("Registro exitoso");
+      reset(); // Limpiar el formulario
       if (response.data) {
-        navigate("/login");
+        navigate("/login"); // Redirigir al login después de registrarse
       }
     } catch (error) {
-      // Add an error programmatically by using the setError function provided by react-hook-form
-      //setError(keyword,message) => keyword means the name of the field where I want to show the error
-
+      // Manejo de errores específicos
       if (
         error?.response?.data?.message === "Error: Username is already taken!"
       ) {
-        setError("username", { message: "username is already taken" });
+        setError("username", { message: "El nombre de usuario ya está en uso" });
       } else if (
         error?.response?.data?.message === "Error: Email is already in use!"
       ) {
-        setError("email", { message: "Email is already in use" });
+        setError("email", { message: "El correo electrónico ya está en uso" });
+      } else {
+        toast.error("Error en el registro. Inténtalo nuevamente.");
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // Desactivar estado de carga
     }
   };
 
-  //if there is token  exist navigate to the user to the home page if he tried to access the login page
+  // Redirigir si ya está autenticado
   useEffect(() => {
     if (token) navigate("/");
   }, [navigate, token]);
 
   return (
-    <div className="min-h-[calc(100vh-74px)] flex justify-center items-center">
+    <div className="min-h-[calc(100vh-74px)] flex items-center justify-center bg-gradient-to-br from-green-100 to-green-200">
       <form
         onSubmit={handleSubmit(onSubmitHandler)}
-        className="sm:w-[450px] w-[360px]  shadow-custom py-6 sm:px-8 px-4"
+        className="sm:w-[450px] w-[360px] bg-white shadow-lg rounded-lg py-6 sm:px-8 px-4"
       >
-        <div>
-          <h1 className="font-montserrat text-center font-bold text-2xl">
-            Register Here Here
+        <div className="text-center">
+          <h1 className="font-montserrat font-bold text-2xl text-green-700 mb-2">
+            Crea tu cuenta
           </h1>
-          <p className="text-slate-600 text-center">
-            Enter your credentials to create new account
+          <p className="text-gray-600 mb-4">
+            Regístrate para comenzar a explorar <strong>FruitCommerce</strong>
           </p>
-          <div className="flex items-center justify-between gap-1 py-5 ">
-            <a
-              href={`${apiUrl}/oauth2/authorization/google`}
-              className="flex gap-1 items-center justify-center flex-1 border p-2 shadow-sm shadow-slate-200 rounded-md hover:bg-slate-300 transition-all duration-300"
-            >
-              <span>
-                <FcGoogle className="text-2xl" />
-              </span>
-              <span className="font-semibold sm:text-customText text-xs">
-                Login with Google
-              </span>
-            </a>
-            <a
-              href={`${apiUrl}/oauth2/authorization/github`}
-              className="flex gap-1 items-center justify-center flex-1 border p-2 shadow-sm shadow-slate-200 rounded-md hover:bg-slate-300 transition-all duration-300"
-            >
-              <span>
-                <FaGithub className="text-2xl" />
-              </span>
-              <span className="font-semibold sm:text-customText text-xs">
-                Login with Github
-              </span>
-            </a>
-          </div>
-
-          <Divider className="font-semibold">OR</Divider>
+          <a
+            href={`${apiUrl}/oauth2/authorization/google`}
+            className="flex gap-2 items-center justify-center w-full border p-2 shadow-sm rounded-md hover:bg-green-100 transition-all duration-300 mb-4"
+          >
+            <FcGoogle className="text-2xl" />
+            <span className="font-medium text-gray-700">
+              Registrarse con Google
+            </span>
+          </a>
+          <Divider className="font-semibold text-gray-500">O</Divider>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-4 mt-4">
           <InputField
-            label="UserName"
+            label="Nombre de usuario"
             required
             id="username"
             type="text"
-            message="*UserName is required"
-            placeholder="type your username"
-            register={register}
-            errors={errors}
-          />{" "}
-          <InputField
-            label="Email"
-            required
-            id="email"
-            type="email"
-            message="*Email is required"
-            placeholder="type your email"
+            message="*El nombre de usuario es obligatorio"
+            placeholder="Ingresa tu nombre de usuario"
             register={register}
             errors={errors}
           />
           <InputField
-            label="Password"
+            label="Correo electrónico"
+            required
+            id="email"
+            type="email"
+            message="*El correo electrónico es obligatorio"
+            placeholder="Ingresa tu correo electrónico"
+            register={register}
+            errors={errors}
+          />
+          <InputField
+            label="Contraseña"
             required
             id="password"
             type="password"
-            message="*Password is required"
-            placeholder="type your password"
+            message="*La contraseña es obligatoria"
+            placeholder="Ingresa tu contraseña"
             register={register}
             errors={errors}
             min={6}
           />
         </div>
-        <Buttons
-          disabled={loading}
-          onClickhandler={() => {}}
-          className="bg-customRed font-semibold flex justify-center text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
-          type="text"
-        >
-          {loading ? <span>Loading...</span> : "Register"}
-        </Buttons>
 
-        <p className="text-center text-sm text-slate-700 mt-2">
-          Already have an account?{" "}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-green-600 text-white font-semibold w-full py-2 rounded-md mt-4 hover:bg-green-700 transition-all duration-300"
+        >
+          {loading ? "Registrando..." : "Registrarse"}
+        </button>
+
+        <p className="text-center text-sm text-gray-600 mt-4">
+          ¿Ya tienes una cuenta?{" "}
           <Link
-            className="font-semibold underline hover:text-black"
             to="/login"
+            className="text-green-600 font-semibold hover:underline"
           >
-            Login
+            Iniciar sesión
           </Link>
         </p>
       </form>

@@ -31,6 +31,7 @@ import AboutPage from "./components/aboutPage/AboutPage";
 import ResetPassword from "./components/Auth/ResetPassword";
 import Footer from "./components/Footer/Footer";
 import { ContextProvider } from "./store/ContextApi";
+import CompleteProfile from "./components/Auth/CompleteProfile";
 
 const App = () => {
   return (
@@ -39,6 +40,7 @@ const App = () => {
         <Navbar />
         <Toaster position="bottom-center" reverseOrder={false} />
         <Routes>
+          {/* Rutas Públicas */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -46,6 +48,34 @@ const App = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Perfil del Usuario */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/complete-profile"
+            element={
+              <ProtectedRoute>
+                <CompleteProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Selección de Rol */}
+          <Route
+            path="/select-role"
+            element={
+              <ProtectedRoute>
+                <SelectRole />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Rutas específicas para "Proveedor" */}
           <Route
@@ -147,6 +177,7 @@ const App = () => {
             }
           />
 
+          {/* Otras Rutas */}
           <Route path="/access-denied" element={<AccessDenied />} />
           <Route
             path="/admin/*"
@@ -156,16 +187,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <UserProfile />
-              </ProtectedRoute>
-            }
-          />
           <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-          <Route path="/select-role" element={<SelectRole />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />

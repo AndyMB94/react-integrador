@@ -1,29 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../../services/api";
-import { jwtDecode } from "jwt-decode";
-import InputField from "../InputField/InputField";
 import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
 import Divider from "@mui/material/Divider";
-import Buttons from "../../utils/Buttons";
 import toast from "react-hot-toast";
 import { useMyContext } from "../../store/ContextApi";
-import { useEffect } from "react";
+import InputField from "../InputField/InputField";
+import api from "../../services/api";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
 const Login = () => {
-  // Step 1: Login method and Step 2: Verify 2FA
-  const [step, setStep] = useState(1);
-  const [jwtToken, setJwtToken] = useState("");
   const [loading, setLoading] = useState(false);
-  // Access the token and setToken function using the useMyContext hook from the ContextProvider
-  const { setToken, token } = useMyContext();
+  const { setToken, setRole, token } = useMyContext(); // Manejo de token y rol en el contexto
   const navigate = useNavigate();
 
-  //react hook form initialization
   const {
     register,
     handleSubmit,
@@ -33,224 +24,129 @@ const Login = () => {
     defaultValues: {
       username: "",
       password: "",
-      code: "",
     },
     mode: "onTouched",
   });
 
-  const handleSuccessfulLogin = (token, decodedToken) => {
-    const user = {
-      username: decodedToken.sub,
-      roles: decodedToken.roles ? decodedToken.roles.split(",") : [],
-    };
-    localStorage.setItem("JWT_TOKEN", token);
-    localStorage.setItem("USER", JSON.stringify(user));
-
-    //store the token on the context state  so that it can be shared any where in our application by context provider
-    setToken(token);
-
-    navigate("/notes");
-  };
-
-  //function for handle login with credentials
-  const onLoginHandler = async (data) => {
+  // Manejo del login con Google
+  const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      const response = await api.post("/auth/public/signin", data);
-
-      //showing success message with react hot toast
-      toast.success("Login Successful");
-
-      //reset the input field by using reset() function provided by react hook form after submission
-      reset();
-
-      if (response.status === 200 && response.data.jwtToken) {
-        setJwtToken(response.data.jwtToken);
-        const decodedToken = jwtDecode(response.data.jwtToken);
-        if (decodedToken.is2faEnabled) {
-          setStep(2); // Move to 2FA verification step
-        } else {
-          handleSuccessfulLogin(response.data.jwtToken, decodedToken);
-        }
-      } else {
-        toast.error(
-          "Login failed. Please check your credentials and try again."
-        );
-      }
+      window.location.href = `${apiUrl}/oauth2/authorization/google`;
     } catch (error) {
-      if (error) {
-        toast.error("Invalid credentials");
-      }
+      console.error("Error al iniciar sesión con Google:", error);
+      toast.error("Error al iniciar sesión con Google. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
   };
 
-  //function for verify 2fa authentication
-  const onVerify2FaHandler = async (data) => {
-    const code = data.code;
-    setLoading(true);
-
+  // Manejo del login con credenciales
+  const handleLogin = async (data) => {
     try {
-      const formData = new URLSearchParams();
-      formData.append("code", code);
-      formData.append("jwtToken", jwtToken);
+      setLoading(true);
+      const response = await api.post("/api/auth/public/signin", data);
 
-      await api.post("/auth/public/verify-2fa-login", formData, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
+      if (response?.data?.jwtToken) {
+        const { jwtToken, roles } = response.data;
 
-      const decodedToken = jwtDecode(jwtToken);
-      handleSuccessfulLogin(jwtToken, decodedToken);
+        // Guardar token y determinar flujo
+        setToken(jwtToken);
+
+        if (!roles || roles.length === 0) {
+          // Si no hay roles asignados, redirigir a selección de rol
+          navigate("/select-role");
+        } else {
+          // Si hay roles, determinar perfil correspondiente
+          const userRole = roles.includes("ROLE_PRODUCTOR")
+            ? "Proveedor"
+            : "Comprador";
+
+          setRole(userRole);
+          navigate(userRole === "Proveedor" ? "/dashboard" : "/home");
+        }
+
+        toast.success("Inicio de sesión exitoso.");
+        reset();
+      } else {
+        toast.error("Credenciales incorrectas. Intenta nuevamente.");
+      }
     } catch (error) {
-      console.error("2FA verification error", error);
-      toast.error("Invalid 2FA code. Please try again.");
+      console.error("Error al iniciar sesión con credenciales:", error);
+      toast.error("Error al iniciar sesión. Verifica tus datos.");
     } finally {
       setLoading(false);
     }
   };
 
-  //if there is token  exist navigate  the user to the home page if he tried to access the login page
+  // Redirigir si ya está autenticado
   useEffect(() => {
     if (token) navigate("/");
   }, [navigate, token]);
 
-  //step1 will render the login form and step-2 will render the 2fa verification form
   return (
-    <div className="min-h-[calc(100vh-74px)] flex justify-center items-center">
-      {step === 1 ? (
-        <React.Fragment>
-          <form
-            onSubmit={handleSubmit(onLoginHandler)}
-            className="sm:w-[450px] w-[360px]  shadow-custom py-8 sm:px-8 px-4"
+    <div className="min-h-[calc(100vh-74px)] flex justify-center items-center bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50">
+      <div className="sm:w-[450px] w-[360px] bg-white shadow-xl rounded-lg py-8 sm:px-8 px-4">
+        <h1 className="font-montserrat text-center font-bold text-3xl text-blue-700">
+          Iniciar Sesión
+        </h1>
+        <p className="text-slate-600 text-center mt-2">
+          Accede a tu cuenta para continuar con <strong>FruitCommerce</strong>
+        </p>
+        <div className="flex items-center justify-center mt-6">
+          <button
+            onClick={handleGoogleLogin}
+            className={`flex gap-2 items-center justify-center w-full bg-blue-50 border border-blue-200 p-3 rounded-lg shadow-md hover:bg-blue-100 hover:shadow-lg transition-all duration-300 ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+            disabled={loading}
           >
-            <div>
-              <h1 className="font-montserrat text-center font-bold text-2xl">
-                Login Here
-              </h1>
-              <p className="text-slate-600 text-center">
-                Please Enter your username and password{" "}
-              </p>
-              <div className="flex items-center justify-between gap-1 py-5 ">
-                <Link
-                  to={`${apiUrl}/oauth2/authorization/google`}
-                  className="flex gap-1 items-center justify-center flex-1 border p-2 shadow-sm shadow-slate-200 rounded-md hover:bg-slate-300 transition-all duration-300"
-                >
-                  <span>
-                    <FcGoogle className="text-2xl" />
-                  </span>
-                  <span className="font-semibold sm:text-customText text-xs">
-                    Login with Google
-                  </span>
-                </Link>
-                <Link
-                  to={`${apiUrl}/oauth2/authorization/github`}
-                  className="flex gap-1 items-center justify-center flex-1 border p-2 shadow-sm shadow-slate-200 rounded-md hover:bg-slate-300 transition-all duration-300"
-                >
-                  <span>
-                    <FaGithub className="text-2xl" />
-                  </span>
-                  <span className="font-semibold sm:text-customText text-xs">
-                    Login with Github
-                  </span>
-                </Link>
-              </div>
-
-              <Divider className="font-semibold">OR</Divider>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <InputField
-                label="UserName"
-                required
-                id="username"
-                type="text"
-                message="*UserName is required"
-                placeholder="type your username"
-                register={register}
-                errors={errors}
-              />{" "}
-              <InputField
-                label="Password"
-                required
-                id="password"
-                type="password"
-                message="*Password is required"
-                placeholder="type your password"
-                register={register}
-                errors={errors}
-              />
-            </div>
-            <Buttons
-              disabled={loading}
-              onClickhandler={() => {}}
-              className="bg-customRed font-semibold text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
-              type="text"
-            >
-              {loading ? <span>Loading...</span> : "LogIn"}
-            </Buttons>
-            <p className=" text-sm text-slate-700 ">
-              <Link
-                className=" underline hover:text-black"
-                to="/forgot-password"
-              >
-                Forgot Password?
-              </Link>
-            </p>
-
-            <p className="text-center text-sm text-slate-700 mt-6">
-              Don't have an account?{" "}
-              <Link
-                className="font-semibold underline hover:text-black"
-                to="/signup"
-              >
-                SignUp
-              </Link>
-            </p>
-          </form>
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <form
-            onSubmit={handleSubmit(onVerify2FaHandler)}
-            className="sm:w-[450px] w-[360px]  shadow-custom py-8 sm:px-8 px-4"
+            <FcGoogle className="text-2xl" />
+            <span className="font-semibold text-blue-700">
+              {loading ? "Redirigiendo..." : "Iniciar sesión con Google"}
+            </span>
+          </button>
+        </div>
+        <Divider className="font-semibold text-gray-500 my-6">O</Divider>
+        <form onSubmit={handleSubmit(handleLogin)} className="flex flex-col gap-4">
+          <InputField
+            label="Nombre de usuario"
+            required
+            id="username"
+            type="text"
+            message="*El nombre de usuario es obligatorio"
+            placeholder="Ingresa tu nombre de usuario"
+            register={register}
+            errors={errors}
+          />
+          <InputField
+            label="Contraseña"
+            required
+            id="password"
+            type="password"
+            message="*La contraseña es obligatoria"
+            placeholder="Ingresa tu contraseña"
+            register={register}
+            errors={errors}
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white font-semibold w-full py-2 rounded-md hover:bg-blue-700 transition-all duration-300"
           >
-            <div>
-              <h1 className="font-montserrat text-center font-bold text-2xl">
-                Verify 2FA
-              </h1>
-              <p className="text-slate-600 text-center">
-                Enter the correct code to complete 2FA Authentication
-              </p>
-
-              <Divider className="font-semibold pb-4"></Divider>
-            </div>
-
-            <div className="flex flex-col gap-2 mt-4">
-              <InputField
-                label="Enter Code"
-                required
-                id="code"
-                type="text"
-                message="*Code is required"
-                placeholder="Enter your 2FA code"
-                register={register}
-                errors={errors}
-              />
-            </div>
-            <Buttons
-              disabled={loading}
-              onClickhandler={() => {}}
-              className="bg-customRed font-semibold text-white w-full py-2 hover:text-slate-400 transition-colors duration-100 rounded-sm my-3"
-              type="text"
-            >
-              {loading ? <span>Loading...</span> : "Verify 2FA"}
-            </Buttons>
-          </form>
-        </React.Fragment>
-      )}
+            {loading ? "Cargando..." : "Iniciar Sesión"}
+          </button>
+        </form>
+        <p className="text-center text-sm text-slate-700 mt-4">
+          ¿No tienes una cuenta?{" "}
+          <Link
+            className="font-semibold underline text-blue-600 hover:text-blue-800"
+            to="/signup"
+          >
+            Regístrate
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

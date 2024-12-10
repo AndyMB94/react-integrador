@@ -3,36 +3,24 @@ import TestimonialItem from "./TestimonialItem";
 
 const Testimonial = () => {
   return (
-    <div className="grid lg:grid-cols-3 sm:grid-cols-2  grid-cols-1 gap-x-4 gap-y-10 md:px-0 px-5">
+    <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-10 md:px-0 px-5">
       <TestimonialItem
-        title="Natives Api"
-        text=" It is a long established fact that a reader will be distracted by the
-        readable content of a page when looking at its layout. The point of
-        using Lorem Ipsum is that it has a more-or-less normal distribution of
-        letters, as opposed to using 'Content here, content here', making it
-        look like readable English."
-        name="Easin"
-        status="Creator"
+        title="Una experiencia confiable"
+        text="FruitCommerce ha revolucionado la manera en la que manejo mi negocio. Ahora puedo encontrar proveedores confiables con facilidad."
+        name="Carlos Gutiérrez"
+        status="Dueño de frutería"
       />
       <TestimonialItem
-        title="Natives Api"
-        text=" It is a long established fact that a reader will be distracted by the
-        readable content of a page when looking at its layout. The point of
-        using Lorem Ipsum is that it has a more-or-less normal distribution of
-        letters, as opposed to using 'Content here, content here', making it
-        look like readable English."
-        name="Easin"
-        status="Creator"
+        title="Rapidez y eficiencia"
+        text="La plataforma es muy intuitiva. Encontrar productos frescos a precios competitivos nunca fue tan fácil."
+        name="María Rodríguez"
+        status="Gerente de supermercado"
       />
       <TestimonialItem
-        title="Natives Api"
-        text=" It is a long established fact that a reader will be distracted by the
-        readable content of a page when looking at its layout. The point of
-        using Lorem Ipsum is that it has a more-or-less normal distribution of
-        letters, as opposed to using 'Content here, content here', making it
-        look like readable English."
-        name="Easin"
-        status="Creator"
+        title="Ahorro de tiempo"
+        text="Gracias a FruitCommerce, puedo gestionar mis compras de manera más eficiente y dedicar más tiempo a mi negocio."
+        name="Pedro Sánchez"
+        status="Distribuidor mayorista"
       />
     </div>
   );

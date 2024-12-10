@@ -1,62 +1,38 @@
 import React from "react";
-import { IoIosPartlySunny } from "react-icons/io";
-import { AiOutlineGlobal } from "react-icons/ai";
-import { MdOutlineSecurity } from "react-icons/md";
-import { SiPythonanywhere } from "react-icons/si";
-import { TbPackageExport } from "react-icons/tb";
-import { FcAssistant } from "react-icons/fc";
+import { FaHandshake } from "react-icons/fa";
+import { MdLocalOffer } from "react-icons/md";
+import { FaRegClock } from "react-icons/fa";
+import { BsTruck } from "react-icons/bs";
+import { FaLeaf } from "react-icons/fa";
 import BrandItem from "./BrandItem";
 
 const Brands = () => {
   return (
-    <div className="grid lg:grid-cols-3  sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-10 pt-20 md:px-0 px-5">
+    <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-10 pt-20 md:px-0 px-5">
       <BrandItem
-        title="World Class Partners"
-        text="Connect with LinkedIn, Google, and 70+ other apps and tools to get more
-        done. Make your work easier by linking your favorite platforms. Stay on
-        top of tasks, calendars, and messages in one spot. Save time and focus
-        better with our easy connections."
-        icon={IoIosPartlySunny}
-      />{" "}
+        title="Conexión Directa"
+        text="Conecta directamente con proveedores locales y compra productos frescos de manera segura y sin intermediarios."
+        icon={FaHandshake}
+      />
       <BrandItem
-        title="Fast Global Supports"
-        text="Connect with LinkedIn, Google, and 70+ other apps and tools to get more
-        done. Make your work easier by linking your favorite platforms. Stay on
-        top of tasks, calendars, and messages in one spot. Save time and focus
-        better with our easy connections."
-        icon={AiOutlineGlobal}
-      />{" "}
+        title="Ofertas Competitivas"
+        text="Compara precios y obtén las mejores ofertas para tus compras al por mayor o al detalle."
+        icon={MdLocalOffer}
+      />
       <BrandItem
-        title="Trusting Security"
-        text="Connect with LinkedIn, Google, and 70+ other apps and tools to get more
-        done. Make your work easier by linking your favorite platforms. Stay on
-        top of tasks, calendars, and messages in one spot. Save time and focus
-        better with our easy connections."
-        icon={MdOutlineSecurity}
-      />{" "}
+        title="Entrega Rápida"
+        text="Recibe tus pedidos a tiempo con nuestro sistema de logística eficiente y confiable."
+        icon={BsTruck}
+      />
       <BrandItem
-        title="Anywhere reculting"
-        text="Connect with LinkedIn, Google, and 70+ other apps and tools to get more
-        done. Make your work easier by linking your favorite platforms. Stay on
-        top of tasks, calendars, and messages in one spot. Save time and focus
-        better with our easy connections."
-        icon={SiPythonanywhere}
-      />{" "}
+        title="Productos Orgánicos"
+        text="Accede a una variedad de frutas frescas y orgánicas de alta calidad directamente del productor."
+        icon={FaLeaf}
+      />
       <BrandItem
-        title="Export Advice"
-        text="Connect with LinkedIn, Google, and 70+ other apps and tools to get more
-        done. Make your work easier by linking your favorite platforms. Stay on
-        top of tasks, calendars, and messages in one spot. Save time and focus
-        better with our easy connections."
-        icon={TbPackageExport}
-      />{" "}
-      <BrandItem
-        title="Assisted Onboarding"
-        text="Connect with LinkedIn, Google, and 70+ other apps and tools to get more
-        done. Make your work easier by linking your favorite platforms. Stay on
-        top of tasks, calendars, and messages in one spot. Save time and focus
-        better with our easy connections."
-        icon={FcAssistant}
+        title="Ahorra Tiempo"
+        text="Simplifica tus compras con nuestra plataforma fácil de usar y gestionada para tu comodidad."
+        icon={FaRegClock}
       />
     </div>
   );

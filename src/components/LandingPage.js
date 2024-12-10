@@ -2,95 +2,147 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Buttons from "../utils/Buttons";
 import { motion } from "framer-motion";
-import Brands from "./LandingPageCom/Brands/Brands";
-import State from "./LandingPageCom/State";
-import Testimonial from "./LandingPageCom/Testimonial/Testimonial";
 import { useMyContext } from "../store/ContextApi";
 
 const fadeInFromTop = {
   hidden: { opacity: 0, y: -50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
 };
-const fadeInFromBotom = {
+
+const fadeInFromBottom = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 const LandingPage = () => {
-  // Access the token  state by using the useMyContext hook from the ContextProvider
   const { token } = useMyContext();
 
   return (
-    <div className="min-h-[calc(100vh-74px)] flex justify-center">
-      <div className="lg:w-[80%] w-full py-16  space-y-4  ">
+    <div className="min-h-[calc(100vh-74px)] flex flex-col items-center">
+      {/* Hero Section */}
+      <header className="hero bg-cover bg-center w-full h-[400px] flex flex-col items-center justify-center text-white text-center bg-green-700">
         <motion.h1
-          className="font-montserrat uppercase text-headerColor  xl:text-headerText md:text-4xl text-2xl mx-auto text-center font-bold sm:w-[95%] w-full"
+          className="text-4xl font-bold mb-4"
           initial="hidden"
           animate="visible"
           variants={fadeInFromTop}
         >
-          Turn your thoughts into secure, organized notes And Faster.
+          Bienvenido a FruitCommerce
         </motion.h1>
-        <h3 className="text-logoText md:text-2xl text-xl font-semibold text-slate-800 text-center">
-          The #1 secure note-taking app.
-        </h3>
-        <p className="text-slate-700 text-center sm:w-[80%] w-[90%] mx-auto">
-          Manage your notes effortlessly and securely. Just type, save, and
-          access them from anywhere with robust encryption and seamless
-          synchronization.
+        <p className="text-lg mb-6">
+          Conecta proveedores y compradores de frutas frescas directamente.
         </p>
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={fadeInFromBotom}
-          className="flex items-center justify-center gap-3 py-10 "
+          variants={fadeInFromBottom}
+          className="flex items-center gap-4"
         >
-          {token ? (
-            <>
-              <Link to="/create-note">
-                <Buttons className="sm:w-52 w-44 bg-customRed font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
-                  Create Note
-                </Buttons>
-              </Link>
-              <Link to="/notes">
-                <Buttons className="sm:w-52 w-44 bg-btnColor font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
-                  My Notes
-                </Buttons>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to="/login">
-                <Buttons className="sm:w-52 w-44 bg-customRed font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
-                  SignIn
-                </Buttons>
-              </Link>
-              <Link to="/signup">
-                <Buttons className="sm:w-52 w-44 bg-btnColor font-semibold hover:scale-105 transition-all duration-200 cursor-pointer text-white px-10 py-3 rounded-sm">
-                  SignUp
-                </Buttons>
-              </Link>
-            </>
+          <Link to="/shop">
+            <Buttons className="bg-green-600 text-white px-6 py-3 rounded-md">
+              Explorar Productos
+            </Buttons>
+          </Link>
+          {!token && (
+            <Link to="/signup">
+              <Buttons className="bg-yellow-500 text-white px-6 py-3 rounded-md">
+                Regístrate Ahora
+              </Buttons>
+            </Link>
           )}
         </motion.div>
-        .
-        <div className="sm:pt-14 pt-0 xl:px-16 md:px-10">
-          <h1 className="font-montserrat uppercase text-headerColor  xl:text-headerText md:text-4xl text-2xl  mx-auto text-center font-bold  w-full">
-            More Reasons Company Around the world workable
-          </h1>
-          <Brands />
-          <State />
-          <div className="pb-10">
-            <h1
-              className="font-montserrat uppercase text-headerColor pb-16  xl:text-headerText md:text-4xl text-2xl  mx-auto text-center font-bold sm:w-[95%] w-full"
-              variants={fadeInFromBotom}
-            >
-              Testimonial
-            </h1>
-            <Testimonial />
+      </header>
+
+      {/* Features Section */}
+      <section className="py-16 bg-gray-100 w-full">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-semibold mb-8">
+            ¿Por qué elegir FruitCommerce?
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="feature text-center">
+              <img
+                src="/images/access.png"
+                alt="Acceso Directo"
+                className="mx-auto mb-4"
+              />
+              <h3 className="text-xl font-bold">Acceso a Proveedores</h3>
+              <p>
+                Encuentra proveedores confiables con precios competitivos para
+                tu negocio.
+              </p>
+            </div>
+            <div className="feature text-center">
+              <img
+                src="/images/prices.png"
+                alt="Precios Competitivos"
+                className="mx-auto mb-4"
+              />
+              <h3 className="text-xl font-bold">Comparación de Precios</h3>
+              <p>
+                Compara ofertas en tiempo real y elige la mejor opción para tu
+                negocio.
+              </p>
+            </div>
+            <div className="feature text-center">
+              <img
+                src="/images/speed.png"
+                alt="Rápido y Seguro"
+                className="mx-auto mb-4"
+              />
+              <h3 className="text-xl font-bold">Gestión Simplificada</h3>
+              <p>
+                Realiza compras y administra tus pedidos de forma rápida y
+                segura.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 bg-white w-full">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-semibold mb-8">Testimonios</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="testimonial p-6 shadow-md bg-gray-100 rounded-md">
+              <p className="italic">
+                "FruitCommerce ha transformado la forma en que compramos frutas
+                para nuestro negocio."
+              </p>
+              <h4 className="font-bold mt-4">— María López</h4>
+            </div>
+            <div className="testimonial p-6 shadow-md bg-gray-100 rounded-md">
+              <p className="italic">
+                "Ahora puedo comparar precios y elegir al mejor proveedor en
+                minutos."
+              </p>
+              <h4 className="font-bold mt-4">— José Ramírez</h4>
+            </div>
+            <div className="testimonial p-6 shadow-md bg-gray-100 rounded-md">
+              <p className="italic">
+                "Una plataforma intuitiva y eficiente. Altamente recomendada."
+              </p>
+              <h4 className="font-bold mt-4">— Carla Fernández</h4>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer CTA */}
+      <footer className="py-16 bg-green-700 text-white w-full text-center">
+        <h2 className="text-3xl font-semibold mb-4">¡Comienza hoy mismo!</h2>
+        <p className="text-lg mb-6">
+          Regístrate y conecta con los mejores proveedores o compradores.
+        </p>
+        {!token && (
+          <Link to="/signup">
+            <Buttons className="bg-yellow-500 px-6 py-3 rounded-md text-white">
+              Regístrate Ahora
+            </Buttons>
+          </Link>
+        )}
+      </footer>
     </div>
   );
 };

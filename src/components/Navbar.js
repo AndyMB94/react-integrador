@@ -29,12 +29,12 @@ const Navbar = () => {
         <>
           <Link to="/contact">
             <li className={`py-2 cursor-pointer hover:text-slate-300 ${pathName === "/contact" ? "font-semibold" : ""}`}>
-              Contact
+              Contacto
             </li>
           </Link>
           <Link to="/about">
             <li className={`py-2 cursor-pointer hover:text-slate-300 ${pathName === "/about" ? "font-semibold" : ""}`}>
-              About
+              Nosotros
             </li>
           </Link>
           <Link to="/signup">
@@ -80,7 +80,7 @@ const Navbar = () => {
           </Link>
           <Link to="/profile">
             <li className={`py-2 cursor-pointer hover:text-slate-300 ${pathName === "/profile" ? "font-semibold" : ""}`}>
-              Profile
+              Perfil
             </li>
           </Link>
           <button onClick={handleLogout} className="w-24 text-center bg-customRed font-semibold px-4 py-2 rounded-sm cursor-pointer hover:text-slate-300">
@@ -129,7 +129,7 @@ const Navbar = () => {
           </Link>
           <Link to="/profile">
             <li className={`py-2 cursor-pointer hover:text-slate-300 ${pathName === "/profile" ? "font-semibold" : ""}`}>
-              Profile
+              Perfil
             </li>
           </Link>
           <button onClick={handleLogout} className="w-24 text-center bg-customRed font-semibold px-4 py-2 rounded-sm cursor-pointer hover:text-slate-300">
